@@ -1,0 +1,8 @@
+# Coffee Shop Customers
+# Format: id|name|phone|loyalty_points
+
+1|Budi Santoso|081234567890|250
+2|Siti Rahayu|082345678901|180
+3|Ahmad Hidayat|083456789012|420
+4|Dewi Lestari|084567890123|75
+5|Eko Prasetyo|085678901234|320
