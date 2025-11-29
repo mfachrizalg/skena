@@ -1,0 +1,24 @@
+# Coffee Shop Products
+# Format: id|name|price|type|extra_field
+# Coffee extra_field: shot size (single/double)
+# Snack extra_field: category (pastry/sandwich/other)
+
+# Coffee Products
+1|Espresso|20000|coffee|single
+2|Double Espresso|28000|coffee|double
+3|Americano|25000|coffee|single
+4|Latte|32000|coffee|single
+5|Cappuccino|32000|coffee|single
+6|Mocha|38000|coffee|double
+7|Macchiato|30000|coffee|single
+8|Flat White|35000|coffee|double
+
+# Snack Products
+9|Croissant|22000|snack|pastry
+10|Chocolate Muffin|18000|snack|pastry
+11|Cheese Danish|20000|snack|pastry
+12|Chicken Sandwich|35000|snack|sandwich
+13|Tuna Sandwich|32000|snack|sandwich
+14|Chocolate Cookie|12000|snack|other
+15|Brownie|25000|snack|pastry
+16|Cheesecake Slice|30000|snack|pastry
