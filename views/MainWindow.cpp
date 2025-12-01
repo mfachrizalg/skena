@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent)
     initializeData();
 
     // Window settings
-    setWindowTitle("Coffee Shop POS - Skena");
+    setWindowTitle("SKENA - Sistem Kelola & Efisiensi Niaga Area-Kopi");
     setMinimumSize(1024, 768);
     resize(1280, 800);
 }
@@ -189,8 +189,8 @@ void MainWindow::onDataChanged() {
 }
 
 void MainWindow::onAbout() {
-    QMessageBox::about(this, "About Coffee Shop POS",
-        "<h2>Coffee Shop POS</h2>"
+    QMessageBox::about(this, "About SKENA",
+        "<h2>SKENA - Sistem Kelola & Efisiensi Niaga Area-Kopi</h2>"
         "<p>Version 1.0</p>"
         "<p>A Point of Sales application for Coffee Shop management.</p>"
         "<h3>Features:</h3>"

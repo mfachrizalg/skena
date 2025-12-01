@@ -34,9 +34,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // Set application info
-    QApplication::setApplicationName("Coffee Shop POS");
+    QApplication::setApplicationName("SKENA");
     QApplication::setApplicationVersion("1.0.0");
-    QApplication::setOrganizationName("Skena");
 
     // Set Fusion style for modern look
     app.setStyle(QStyleFactory::create("Fusion"));
