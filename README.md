@@ -12,6 +12,7 @@ A GUI-based Point of Sale application for a Coffee Shop built with **C++17** and
 
 - [Features](#features)
 - [Screenshots](#screenshots)
+- [Diagrams](#diagrams)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -91,9 +92,33 @@ A GUI-based Point of Sale application for a Coffee Shop built with **C++17** and
 
 ---
 
+## Diagrams
+
+### Use Case Diagram
+![Use Case Diagram](docs/diagrams/Use%20Case%20Diagram.png)
+
+### Class Diagram
+![Class Diagram](docs/diagrams/Class%20Diagram.png)
+
+### Application Flow
+![Application Flow](docs/diagrams/Application%20Flow.png)
+
+### Transaction Flow
+![Transaction Flow](docs/diagrams/Transaction%20Flow.png)
+
+### Product Management Flow
+![Product Management Flow](docs/diagrams/Product%20Management%20Flow.png)
+
+### Customer Management Flow
+![Customer Management Flow](docs/diagrams/Customer%20Management%20Flow.png)
+
+---
+
 ## Architecture
 
 This project follows the **Model-View-Controller (MVC)** architectural pattern:
+
+![Architecture](docs/diagrams/Architecture.png)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -607,13 +632,12 @@ cd /path/to/skena
 
 ---
 
-## Contributing
+## Developers
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+| No | NIM                        | Name               |
+|----|----------------------------|--------------------|
+| 1  | Andhika Satria Wibisono    | 22/497821/TK/54578 |
+| 2  | Muhammad Fachrizal Giffari | 22/504570/TK/55192 |
 
 ---
 
