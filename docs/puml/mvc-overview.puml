@@ -1,0 +1,114 @@
+@startuml MVC Architecture Overview - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' MVC Architecture Overview Diagram
+' ============================================
+
+' Font and styling settings for better visibility
+skinparam defaultFontSize 16
+skinparam defaultFontName Arial
+skinparam packageFontSize 18
+skinparam componentFontSize 14
+skinparam dpi 150
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+title <size:24>SKENA Coffee Shop POS System</size>\n<size:18>MVC Architecture Overview</size>
+
+' ==================== MODELS LAYER ====================
+
+package "Models" #LightBlue {
+    component [IEntity] as IE
+    component [Product] as P
+    component [Coffee] as C
+    component [Snack] as S
+    component [Customer] as CU
+    component [Transaction] as T
+    component [TransactionItem] as TI
+
+    IE <|-- P
+    P <|-- C
+    P <|-- S
+    IE <|-- CU
+    IE <|-- T
+    T *-- TI
+}
+
+' ==================== VIEWS LAYER ====================
+
+package "Views" #LightGreen {
+    component [MainWindow] as MW
+    component [ProductView] as PV
+    component [CustomerView] as CV
+    component [TransactionView] as TV
+
+    MW *-- PV
+    MW *-- CV
+    MW *-- TV
+}
+
+' ==================== CONTROLLERS LAYER ====================
+
+package "Controllers" #LightYellow {
+    component [IController<T>] as IC
+    component [ProductController] as PC
+    component [CustomerController] as CC
+    component [TransactionController] as TC
+
+    IC <|-- PC
+    IC <|-- CC
+    IC <|-- TC
+}
+
+' ==================== UTILITIES LAYER ====================
+
+package "Utilities" #LightGray {
+    component [FileManager] as FM
+    component [IdGenerator] as IG
+}
+
+' ==================== MVC RELATIONSHIPS ====================
+
+' View -> Controller
+PV --> PC
+CV --> CC
+TV --> TC
+TV --> PC
+TV --> CC
+
+' Controller -> Model
+PC --> P
+CC --> CU
+TC --> T
+
+' Controller -> Controller
+TC --> PC
+TC --> CC
+
+' Controller -> Utilities
+PC --> FM
+CC --> FM
+TC --> FM
+
+PC --> IG
+CC --> IG
+TC --> IG
+
+' ==================== LEGEND ====================
+
+legend right
+  <size:14>**Legend**</size>
+  |= Symbol |= Meaning |
+  | <|-- | Inheritance |
+  | *-- | Composition |
+  | --> | Dependency |
+  |= Color |= Layer |
+  | <#LightBlue> | Models |
+  | <#LightGreen> | Views |
+  | <#LightYellow> | Controllers |
+  | <#LightGray> | Utilities |
+endlegend
+
+@enduml

@@ -1,0 +1,130 @@
+@startuml Transaction Flow - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' Transaction Flow Diagram
+' ============================================
+
+' Styling for better visibility
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+skinparam activityFontSize 14
+skinparam dpi 150
+skinparam shadowing false
+skinparam ActivityBackgroundColor #LightYellow
+skinparam ActivityBorderColor #Black
+skinparam ActivityDiamondBackgroundColor #LightBlue
+skinparam ActivityDiamondBorderColor #Black
+
+title <size:20>Transaction Flow</size>\n<size:14>SKENA Coffee Shop POS System</size>
+
+start
+
+:Start New Transaction;
+note right: TransactionController::\nstartNewTransaction()
+
+repeat
+
+    :Display Product List;
+    note right: Coffee & Snack tabs
+
+    :Select Product;
+
+    if (Product selected?) then (yes)
+        :Add to Cart;
+        note right: TransactionController::\naddToCart()
+
+        :Update Cart Display;
+        :Recalculate Totals;
+    else (no)
+    endif
+
+    if (Modify cart?) then (yes)
+        switch (Action?)
+        case (Update Qty)
+            :Update Item Quantity;
+            note right: updateCartQuantity()
+        case (Remove)
+            :Remove Item from Cart;
+            note right: removeFromCart()
+        endswitch
+        :Recalculate Totals;
+    else (no)
+    endif
+
+repeat while (Continue shopping?) is (yes)
+->no;
+
+if (Cart has items?) then (yes)
+
+    :Select Customer;
+    note right: Optional - can be Guest
+
+    if (Customer selected?) then (yes)
+        :Load Customer Points;
+        :Display Available Points;
+
+        if (Use loyalty points?) then (yes)
+            :Enter Points to Redeem;
+
+            if (Points valid?) then (yes)
+                :Apply Points Discount;
+                note right: setPointsToUse()
+                :Update Total;
+            else (no)
+                :Show Error Message;
+            endif
+        else (no)
+        endif
+    else (no)
+        :Continue as Guest;
+    endif
+
+    :Display Final Total;
+
+    if (Confirm payment?) then (yes)
+        :Complete Transaction;
+        note right #PaleGreen: TransactionController::\ncompleteTransaction()
+
+        :Generate Transaction ID;
+        :Set DateTime;
+        :Save Transaction;
+
+        if (Customer selected?) then (yes)
+            :Deduct Used Points;
+            note right: CustomerController::\nredeemLoyaltyPoints()
+
+            :Calculate Earned Points;
+            note right: 1 point per Rp1000
+
+            :Add Earned Points;
+            note right: CustomerController::\naddLoyaltyPoints()
+        else (no)
+        endif
+
+        :Show Receipt/Summary;
+        :Clear Cart;
+
+        #PaleGreen:Transaction Complete;
+    else (no)
+        :Cancel Transaction;
+        note right: cancelTransaction()
+        :Clear Cart;
+        #LightCoral:Transaction Cancelled;
+    endif
+
+else (no)
+    #LightCoral:No Items - Exit;
+endif
+
+stop
+
+legend right
+    |= Color |= Meaning |
+    | <#LightYellow> | Normal Action |
+    | <#LightBlue> | Decision |
+    | <#PaleGreen> | Success |
+    | <#LightCoral> | Cancel/Exit |
+endlegend
+
+@enduml

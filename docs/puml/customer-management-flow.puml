@@ -1,0 +1,171 @@
+@startuml Customer Management Flow - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' Customer Management Flow Diagram
+' ============================================
+
+' Styling for better visibility
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+skinparam activityFontSize 14
+skinparam dpi 150
+skinparam shadowing false
+skinparam ActivityBackgroundColor #LightYellow
+skinparam ActivityBorderColor #Black
+skinparam ActivityDiamondBackgroundColor #LightBlue
+skinparam ActivityDiamondBorderColor #Black
+
+title <size:20>Customer Management Flow</size>\n<size:14>SKENA Coffee Shop POS System</size>
+
+start
+
+:Open Customer View;
+:Load Customers from Controller;
+note right: CustomerController::getAll()
+
+:Display Customers in Table;
+note right
+    Columns:
+    - ID
+    - Name
+    - Phone
+    - Loyalty Points
+end note
+
+repeat
+
+    switch (User Action?)
+
+    case (Search)
+        :Enter Search Term;
+
+        if (Search term empty?) then (yes)
+            :Show All Customers;
+            note right: CustomerController::getAll()
+        else (no)
+            :Search by Name;
+            note right: CustomerController::\nsearchByName()
+        endif
+
+        :Update Table Display;
+
+    case (Add Customer)
+        :Clear Form;
+        :Enter Customer Details;
+        note right
+            - Name (required)
+            - Phone
+        end note
+
+        if (Validate Input?) then (valid)
+            :Create Customer;
+            note right: CustomerController::\ncreateCustomer()
+
+            :Generate ID;
+            note right: IdGenerator::\ngetNextId("customer")
+
+            :Set Initial Points = 0;
+
+            :Add to Controller;
+            note right: CustomerController::add()
+
+            #PaleGreen:Customer Added;
+            :Emit dataChanged Signal;
+        else (invalid)
+            #LightCoral:Show Validation Error;
+            note right: Name cannot be empty
+        endif
+
+    case (Edit Customer)
+        if (Customer selected?) then (yes)
+            :Populate Form with Data;
+
+            :Modify Customer Details;
+            note right
+                - Name
+                - Phone
+                - Points (display only)
+            end note
+
+            if (Validate Input?) then (valid)
+                :Update Customer;
+                note right: CustomerController::update()
+
+                #PaleGreen:Customer Updated;
+                :Emit dataChanged Signal;
+            else (invalid)
+                #LightCoral:Show Validation Error;
+            endif
+        else (no)
+            #LightCoral:No Customer Selected;
+        endif
+
+    case (Delete Customer)
+        if (Customer selected?) then (yes)
+            :Show Confirmation Dialog;
+
+            if (Confirm delete?) then (yes)
+                :Remove Customer;
+                note right: CustomerController::remove()
+
+                #PaleGreen:Customer Deleted;
+                :Emit dataChanged Signal;
+            else (no)
+                :Cancel Delete;
+            endif
+        else (no)
+            #LightCoral:No Customer Selected;
+        endif
+
+    case (Add Points Manually)
+        if (Customer selected?) then (yes)
+            :Enter Points Amount;
+
+            if (Points > 0?) then (yes)
+                :Add Loyalty Points;
+                note right: CustomerController::\naddLoyaltyPoints()
+
+                #PaleGreen:Points Added;
+                :Update Table Display;
+                :Emit dataChanged Signal;
+            else (no)
+                #LightCoral:Invalid Points Amount;
+            endif
+        else (no)
+            #LightCoral:No Customer Selected;
+        endif
+
+    case (Select Row)
+        :Highlight Row;
+        :Populate Form with Data;
+        :Store Selected Customer ID;
+        :Display Current Points;
+
+    case (Clear Form)
+        :Reset All Fields;
+        :Clear Selection;
+
+    endswitch
+
+    :Refresh Table;
+
+repeat while (Continue?) is (yes)
+->no;
+
+stop
+
+legend right
+    |= Color |= Meaning |
+    | <#LightYellow> | Normal Action |
+    | <#LightBlue> | Decision |
+    | <#PaleGreen> | Success |
+    | <#LightCoral> | Error/Cancel |
+
+    **Loyalty Points Rules:**
+    - Earn: 1 point per Rp1,000
+    - Redeem: 1 point = Rp100
+    - Min redeem: 10 points
+endlegend
+
+@enduml

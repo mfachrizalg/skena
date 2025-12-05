@@ -1,0 +1,135 @@
+@startuml Product Management Flow - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' Product Management Flow Diagram
+' ============================================
+
+' Styling for better visibility
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+skinparam activityFontSize 14
+skinparam dpi 150
+skinparam shadowing false
+skinparam ActivityBackgroundColor #LightYellow
+skinparam ActivityBorderColor #Black
+skinparam ActivityDiamondBackgroundColor #LightBlue
+skinparam ActivityDiamondBorderColor #Black
+
+title <size:20>Product Management Flow</size>\n<size:14>SKENA Coffee Shop POS System</size>
+
+start
+
+:Open Product View;
+:Load Products from Controller;
+note right: ProductController::getAll()
+
+:Display Products in Table;
+
+repeat
+
+    :Apply Type Filter;
+    note right: All / Coffee / Snack
+
+    :Refresh Table Display;
+    note right: ProductController::\ngetByType()
+
+    switch (User Action?)
+
+    case (Add Product)
+        :Clear Form;
+        :Enter Product Details;
+        note right
+            - Name
+            - Price
+            - Type (Coffee/Snack)
+        end note
+
+        if (Type = Coffee?) then (yes)
+            :Enter Shot Size;
+            note right: single / double
+        else (no)
+            :Enter Category;
+            note right: pastry / sandwich / other
+        endif
+
+        if (Validate Input?) then (valid)
+            :Create Product;
+            note right: ProductController::\ncreateCoffee() or\ncreateSnack()
+
+            :Add to Controller;
+            note right: ProductController::add()
+
+            :Generate ID;
+            note right: IdGenerator::\ngetNextId("product")
+
+            #PaleGreen:Product Added;
+            :Emit dataChanged Signal;
+        else (invalid)
+            #LightCoral:Show Validation Error;
+        endif
+
+    case (Edit Product)
+        if (Product selected?) then (yes)
+            :Populate Form with Data;
+            note right: populateForm()
+
+            :Modify Product Details;
+
+            if (Validate Input?) then (valid)
+                :Update Product;
+                note right: ProductController::update()
+
+                #PaleGreen:Product Updated;
+                :Emit dataChanged Signal;
+            else (invalid)
+                #LightCoral:Show Validation Error;
+            endif
+        else (no)
+            #LightCoral:No Product Selected;
+        endif
+
+    case (Delete Product)
+        if (Product selected?) then (yes)
+            :Show Confirmation Dialog;
+
+            if (Confirm delete?) then (yes)
+                :Remove Product;
+                note right: ProductController::remove()
+
+                #PaleGreen:Product Deleted;
+                :Emit dataChanged Signal;
+            else (no)
+                :Cancel Delete;
+            endif
+        else (no)
+            #LightCoral:No Product Selected;
+        endif
+
+    case (Select Row)
+        :Highlight Row;
+        :Populate Form with Data;
+        :Store Selected Product ID;
+
+    case (Clear Form)
+        :Reset All Fields;
+        :Clear Selection;
+
+    endswitch
+
+    :Refresh Table;
+
+repeat while (Continue?) is (yes)
+->no;
+
+stop
+
+legend right
+    |= Color |= Meaning |
+    | <#LightYellow> | Normal Action |
+    | <#LightBlue> | Decision |
+    | <#PaleGreen> | Success |
+    | <#LightCoral> | Error/Cancel |
+endlegend
+
+@enduml

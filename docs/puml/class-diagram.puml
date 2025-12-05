@@ -1,0 +1,315 @@
+@startuml Class Diagram - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' Class Diagram
+' ============================================
+
+' Font and styling settings for better visibility
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+skinparam classFontSize 16
+skinparam classFontStyle bold
+skinparam classAttributeFontSize 12
+skinparam dpi 150
+skinparam shadowing false
+
+' ==================== INTERFACES ====================
+
+interface IEntity <<interface>> {
+    + getId(): int
+    + serialize(): string
+    + deserialize(data: string): void
+    + isValid(): bool
+}
+
+interface "IController<T>" as IController <<interface>> {
+    + getAll(): vector<T>
+    + getById(id: int): T*
+    + add(item: T): bool
+    + update(item: T): bool
+    + remove(id: int): bool
+    + saveToFile(): bool
+    + loadFromFile(): bool
+    + getCount(): int
+}
+
+' ==================== MODELS ====================
+
+abstract class Product #LightBlue {
+    - m_id: int
+    - m_name: string
+    - m_price: double
+    - m_type: string
+    ==
+    + getId(): int
+    + getName(): string
+    + getPrice(): double
+    + getType(): string
+    + setId(id: int): void
+    + setName(name: string): void
+    + setPrice(price: double): void
+    + isValid(): bool
+    + calculatePrice(quantity: int): double
+    + getDescription(): string
+    + getExtraField(): string
+    + setExtraField(value: string): void
+    + clone(): Product*
+}
+
+class Coffee #CornflowerBlue {
+    - m_shotSize: string
+    ==
+    + getShotSize(): string
+    + setShotSize(size: string): void
+    + serialize(): string
+    + deserialize(data: string): void
+    + clone(): Product*
+}
+
+class Snack #SkyBlue {
+    - m_category: string
+    ==
+    + getCategory(): string
+    + setCategory(category: string): void
+    + serialize(): string
+    + deserialize(data: string): void
+    + clone(): Product*
+}
+
+class Customer #LightGreen {
+    - m_id: int
+    - m_name: string
+    - m_phone: string
+    - m_loyaltyPoints: int
+    ==
+    + getId(): int
+    + getName(): string
+    + getPhone(): string
+    + getLoyaltyPoints(): int
+    + setLoyaltyPoints(points: int): void
+    + addPoints(points: int): void
+    + redeemPoints(points: int): bool
+    + serialize(): string
+    + deserialize(data: string): void
+    + isValid(): bool
+}
+
+class TransactionItem #Wheat {
+    - m_productId: int
+    - m_productName: string
+    - m_unitPrice: double
+    - m_quantity: int
+    ==
+    + getProductId(): int
+    + getProductName(): string
+    + getUnitPrice(): double
+    + getQuantity(): int
+    + getSubtotal(): double
+    + setQuantity(qty: int): void
+    + serializeCompact(): string
+    + deserializeCompact(data: string): void
+}
+
+class Transaction #Khaki {
+    - m_id: int
+    - m_customerId: int
+    - m_dateTime: string
+    - m_items: vector<TransactionItem>
+    - m_subtotal: double
+    - m_discount: double
+    - m_total: double
+    - m_pointsEarned: int
+    - m_pointsUsed: int
+    ==
+    + getId(): int
+    + getCustomerId(): int
+    + getDateTime(): string
+    + getItems(): vector<TransactionItem>
+    + getTotal(): double
+    + addItem(item: TransactionItem): void
+    + removeItem(productId: int): bool
+    + recalculate(): void
+    + serialize(): string
+    + deserialize(data: string): void
+    + isValid(): bool
+}
+
+' ==================== CONTROLLERS ====================
+
+class ProductController #LightYellow {
+    - m_products: vector<unique_ptr<Product>>
+    - m_fileManager: FileManager&
+    ==
+    + getAll(): vector<Product*>
+    + getById(id: int): Product*
+    + getByType(type: string): vector<Product*>
+    + add(product: unique_ptr<Product>): bool
+    + update(product: Product): bool
+    + remove(id: int): bool
+    + createCoffee(...): unique_ptr<Product>
+    + createSnack(...): unique_ptr<Product>
+    + saveToFile(): bool
+    + loadFromFile(): bool
+}
+
+class CustomerController #PaleGreen {
+    - m_customers: vector<Customer>
+    - m_fileManager: FileManager&
+    ==
+    + getAll(): vector<Customer>
+    + getById(id: int): Customer*
+    + add(customer: Customer): bool
+    + update(customer: Customer): bool
+    + remove(id: int): bool
+    + searchByName(term: string): vector<Customer*>
+    + addLoyaltyPoints(customerId: int, points: int): bool
+    + redeemLoyaltyPoints(customerId: int, points: int): bool
+    + saveToFile(): bool
+    + loadFromFile(): bool
+}
+
+class TransactionController #Moccasin {
+    - m_transactions: vector<Transaction>
+    - m_currentTransaction: Transaction
+    - m_fileManager: FileManager&
+    - m_productController: ProductController&
+    - m_customerController: CustomerController&
+    ==
+    + getAll(): vector<Transaction>
+    + getById(id: int): Transaction*
+    + startNewTransaction(customerId: int): void
+    + getCurrentTransaction(): Transaction&
+    + addToCart(productId: int, quantity: int): bool
+    + removeFromCart(productId: int): bool
+    + completeTransaction(): bool
+    + cancelTransaction(): void
+    + saveToFile(): bool
+    + loadFromFile(): bool
+}
+
+' ==================== VIEWS ====================
+
+class MainWindow #LightPink {
+    - m_fileManager: FileManager*
+    - m_productController: ProductController*
+    - m_customerController: CustomerController*
+    - m_transactionController: TransactionController*
+    - m_productView: ProductView*
+    - m_customerView: CustomerView*
+    - m_transactionView: TransactionView*
+    ==
+    + MainWindow()
+    + ~MainWindow()
+    - setupUI(): void
+    - initializeData(): void
+    + onSave(): void
+    + onLoad(): void
+}
+
+class ProductView #MistyRose {
+    - m_controller: ProductController*
+    - m_productTable: QTableWidget*
+    - m_selectedProductId: int
+    ==
+    + ProductView(controller: ProductController*)
+    + refreshTable(): void
+    + onAddProduct(): void
+    + onEditProduct(): void
+    + onDeleteProduct(): void
+    <<signal>> dataChanged(): void
+}
+
+class CustomerView #MistyRose {
+    - m_controller: CustomerController*
+    - m_customerTable: QTableWidget*
+    - m_selectedCustomerId: int
+    ==
+    + CustomerView(controller: CustomerController*)
+    + refreshTable(): void
+    + onAddCustomer(): void
+    + onEditCustomer(): void
+    + onDeleteCustomer(): void
+    + onSearch(): void
+    <<signal>> dataChanged(): void
+}
+
+class TransactionView #MistyRose {
+    - m_transactionController: TransactionController*
+    - m_productController: ProductController*
+    - m_customerController: CustomerController*
+    - m_cartTable: QTableWidget*
+    ==
+    + TransactionView(...)
+    + refreshProductLists(): void
+    + refreshCart(): void
+    + onCompleteTransaction(): void
+    + onCancelTransaction(): void
+    <<signal>> transactionCompleted(): void
+}
+
+' ==================== UTILITIES ====================
+
+class FileManager #LightGray {
+    - m_dataPath: string
+    ==
+    + FileManager(dataPath: string)
+    + readLines(filename: string): vector<string>
+    + writeLines(filename: string, lines: vector<string>): bool
+    + fileExists(filename: string): bool
+    + splitLine(line: string, delimiter: char): vector<string>
+    + joinFields(fields: vector<string>, delimiter: char): string
+}
+
+class IdGenerator <<Singleton>> #Silver {
+    - m_counters: unordered_map<string, int>
+    ==
+    + getInstance(): IdGenerator&
+    + getNextId(entityType: string): int
+    + updateCounter(entityType: string, id: int): void
+    + resetAll(): void
+}
+
+' ==================== RELATIONSHIPS ====================
+
+' Interface implementations
+IEntity <|.. Product
+IEntity <|.. Customer
+IEntity <|.. Transaction
+IController <|.. CustomerController
+IController <|.. TransactionController
+
+' Inheritance
+Product <|-- Coffee
+Product <|-- Snack
+
+' Compositions and Aggregations
+Transaction "1" *-- "0..*" TransactionItem
+
+MainWindow "1" *-- "1" FileManager
+MainWindow "1" *-- "1" ProductController
+MainWindow "1" *-- "1" CustomerController
+MainWindow "1" *-- "1" TransactionController
+MainWindow "1" *-- "1" ProductView
+MainWindow "1" *-- "1" CustomerView
+MainWindow "1" *-- "1" TransactionView
+
+ProductController "1" o-- "0..*" Product
+CustomerController "1" o-- "0..*" Customer
+TransactionController "1" o-- "0..*" Transaction
+
+' Dependencies
+ProductController --> FileManager
+CustomerController --> FileManager
+TransactionController --> FileManager
+TransactionController --> ProductController
+TransactionController --> CustomerController
+
+ProductView --> ProductController
+CustomerView --> CustomerController
+TransactionView --> TransactionController
+TransactionView --> ProductController
+TransactionView --> CustomerController
+
+@enduml

@@ -1,0 +1,259 @@
+@startuml Application Flow - SKENA POS System
+
+' ============================================
+' SKENA Coffee Shop POS System
+' Application Flow Diagram
+' ============================================
+
+' Styling for better visibility
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+skinparam activityFontSize 14
+skinparam dpi 150
+skinparam shadowing false
+skinparam ActivityBackgroundColor #LightYellow
+skinparam ActivityBorderColor #Black
+skinparam ActivityDiamondBackgroundColor #LightBlue
+skinparam ActivityDiamondBorderColor #Black
+
+title <size:20>Application Flow</size>\n<size:14>SKENA Coffee Shop POS System</size>
+
+|#LightCyan|Main|
+start
+
+:Application Start;
+note right: main.cpp
+
+:Create QApplication;
+
+:Create MainWindow;
+
+|#LightGreen|Initialization|
+
+:Create FileManager;
+note right: FileManager("data/")
+
+:Create Controllers;
+note right
+    - ProductController
+    - CustomerController
+    - TransactionController
+end note
+
+:Create Views;
+note right
+    - ProductView
+    - CustomerView
+    - TransactionView
+end note
+
+:Setup UI;
+note right
+    - Create Tab Widget
+    - Add Views to Tabs
+    - Create Menu Bar
+    - Create Status Bar
+end note
+
+:Connect Signals/Slots;
+note right
+    - dataChanged signals
+    - Menu actions
+    - Tab changes
+end note
+
+:Initialize Data;
+
+|#Wheat|Data Loading|
+
+fork
+    :Load Products;
+    note right: ProductController::\nloadFromFile()
+
+    if (products.txt exists?) then (yes)
+        :Read File Lines;
+        :Parse Each Line;
+
+        repeat
+            :Detect Product Type;
+
+            if (Type = "coffee"?) then (yes)
+                :Create Coffee Object;
+            else (no)
+                :Create Snack Object;
+            endif
+
+            :Deserialize Data;
+            :Add to Collection;
+            :Update ID Counter;
+        repeat while (More lines?)
+    else (no)
+        :Create Empty File;
+    endif
+fork again
+    :Load Customers;
+    note right: CustomerController::\nloadFromFile()
+
+    if (customers.txt exists?) then (yes)
+        :Read File Lines;
+        :Parse Each Line;
+
+        repeat
+            :Create Customer Object;
+            :Deserialize Data;
+            :Add to Collection;
+            :Update ID Counter;
+        repeat while (More lines?)
+    else (no)
+        :Create Empty File;
+    endif
+fork again
+    :Load Transactions;
+    note right: TransactionController::\nloadFromFile()
+
+    if (transactions.txt exists?) then (yes)
+        :Read File Lines;
+        :Parse Each Line;
+
+        repeat
+            :Create Transaction Object;
+            :Deserialize Data;
+            :Parse Transaction Items;
+            :Add to Collection;
+            :Update ID Counter;
+        repeat while (More lines?)
+    else (no)
+        :Create Empty File;
+    endif
+end fork
+
+|#LightGreen|Initialization|
+
+:Update Status Bar;
+note right
+    Products: X
+    Customers: Y
+    Transactions: Z
+end note
+
+#PaleGreen:Data Loaded Successfully;
+
+|#LightCyan|Main|
+
+:Show MainWindow;
+:Enter Qt Event Loop;
+note right: app.exec()
+
+|#LightPink|User Interaction|
+
+repeat
+
+    switch (User Action?)
+
+    case (Product Tab)
+        :Handle Product Operations;
+        note right: See Product Management Flow
+
+    case (Customer Tab)
+        :Handle Customer Operations;
+        note right: See Customer Management Flow
+
+    case (POS Tab)
+        :Handle Transactions;
+        note right: See Transaction Flow
+
+    case (File > Save)
+        |#Wheat|Data Saving|
+
+        fork
+            :Save Products;
+            note right: ProductController::\nsaveToFile()
+
+            :Serialize Each Product;
+            :Write to products.txt;
+        fork again
+            :Save Customers;
+            note right: CustomerController::\nsaveToFile()
+
+            :Serialize Each Customer;
+            :Write to customers.txt;
+        fork again
+            :Save Transactions;
+            note right: TransactionController::\nsaveToFile()
+
+            :Serialize Each Transaction;
+            :Write to transactions.txt;
+        end fork
+
+        #PaleGreen:Data Saved;
+
+        |#LightPink|User Interaction|
+
+    case (File > Load)
+        :Show Confirmation;
+
+        if (Confirm reload?) then (yes)
+            :Reload All Data;
+            :Refresh All Views;
+        else (no)
+        endif
+
+    case (Help > About)
+        :Show About Dialog;
+        note right
+            SKENA POS System
+            Version 1.0
+        end note
+
+    case (Close Window)
+        :Trigger Close Event;
+
+    endswitch
+
+repeat while (Window Open?) is (yes)
+->no;
+
+|#LightCoral|Shutdown|
+
+:Close Event Triggered;
+
+:Show Save Confirmation;
+
+if (Save before exit?) then (yes)
+    :Save All Data;
+    note right
+        - products.txt
+        - customers.txt
+        - transactions.txt
+    end note
+else (no)
+endif
+
+:Cleanup Resources;
+note right
+    - Delete Controllers
+    - Delete Views
+    - Delete FileManager
+end note
+
+:Exit Application;
+
+|#LightCyan|Main|
+
+stop
+
+legend right
+    |= Swimlane |= Description |
+    | <#LightCyan> | Main Thread |
+    | <#LightGreen> | Initialization |
+    | <#Wheat> | Data I/O |
+    | <#LightPink> | User Interaction |
+    | <#LightCoral> | Shutdown |
+
+    **Data Files:**
+    - data/products.txt
+    - data/customers.txt
+    - data/transactions.txt
+endlegend
+
+@enduml
